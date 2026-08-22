@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import MobileNav from "@/components/layout/MobileNav";
 import DesktopSidebar from "@/components/layout/DesktopSidebar";
 import AnnouncementBanner from "@/components/layout/AnnouncementBanner";
+import QuickCapture from "@/components/tasks/QuickCapture";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const upsertUser = useMutation(api.users.upsertUser);
+  const categories = useQuery(api.categories.getUserCategories);
+  const [showCapture, setShowCapture] = useState(false);
 
   // Sync user to Convex on mount
   useEffect(() => {
@@ -34,15 +37,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <DesktopSidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-24 md:pb-8">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen pb-[76px] md:pb-8">
         <AnnouncementBanner />
         <main className="flex-1 w-full">
           {children}
         </main>
       </div>
 
-      {/* Mobile Bottom Nav (visible on mobile only) */}
-      <MobileNav />
+      {/* Mobile Bottom Nav with FAB handler */}
+      <MobileNav onAddTask={() => setShowCapture(true)} />
+
+      {/* Global Quick Capture Modal (triggered from mobile nav FAB) */}
+      {showCapture && (
+        <QuickCapture
+          categories={categories ?? []}
+          onClose={() => setShowCapture(false)}
+        />
+      )}
     </div>
   );
 }
