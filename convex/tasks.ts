@@ -13,32 +13,40 @@ export const createTask = mutation({
     categoryId: v.optional(v.id("categories")),
   },
   handler: async (ctx, args) => {
-    const user = await requireUser(ctx);
-    const now = Date.now();
+    try {
+      const user = await requireUser(ctx);
+      const now = Date.now();
 
-    // Get current max order for user
-    const lastTask = await ctx.db
-      .query("tasks")
-      .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
-      .order("desc")
-      .first();
+      // Get current max order for user
+      const lastTask = await ctx.db
+        .query("tasks")
+        .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+        .order("desc")
+        .first();
 
-    const order = lastTask ? lastTask.order + 1 : 0;
+      const order =
+        lastTask && typeof lastTask.order === "number" && !isNaN(lastTask.order)
+          ? lastTask.order + 1
+          : 0;
 
-    const taskId = await ctx.db.insert("tasks", {
-      userId: user.clerkId,
-      title: args.title,
-      description: args.description,
-      status: args.status,
-      priority: args.priority,
-      dueDate: args.dueDate,
-      categoryId: args.categoryId,
-      order,
-      createdAt: now,
-      updatedAt: now,
-    });
+      const taskId = await ctx.db.insert("tasks", {
+        userId: user.clerkId,
+        title: args.title,
+        description: args.description || undefined,
+        status: args.status,
+        priority: args.priority,
+        dueDate: args.dueDate,
+        categoryId: args.categoryId || undefined,
+        order,
+        createdAt: now,
+        updatedAt: now,
+      });
 
-    return taskId;
+      return taskId;
+    } catch (err: any) {
+      console.error("Lỗi chi tiết trong createTask:", err);
+      throw new Error(`[CREATE_TASK_ERROR] ${err?.message || String(err)}`);
+    }
   },
 });
 

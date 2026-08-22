@@ -6,6 +6,7 @@ import { Doc, Id } from "@convex/_generated/dataModel";
 import { useState, useRef, useEffect } from "react";
 import { X, Zap, Calendar, Flag, Tag, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/nextjs";
 
 type Category = Doc<"categories">;
 
@@ -18,19 +19,32 @@ const PRIORITIES = [
 interface QuickCaptureProps {
   categories: Category[];
   onClose: () => void;
+  defaultCategory?: Id<"categories">;
 }
 
-export default function QuickCapture({ categories, onClose }: QuickCaptureProps) {
+function getLocalDatetimeString(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+export default function QuickCapture({ categories, onClose, defaultCategory }: QuickCaptureProps) {
+  const { getToken, isSignedIn } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
-  const [categoryId, setCategoryId] = useState<Id<"categories"> | undefined>();
+  const [categoryId, setCategoryId] = useState<Id<"categories"> | undefined>(defaultCategory);
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date();
     d.setHours(23, 59, 0, 0);
-    return d.toISOString().slice(0, 16);
+    return getLocalDatetimeString(d);
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,18 +59,46 @@ export default function QuickCapture({ categories, onClose }: QuickCaptureProps)
     if (!title.trim()) return;
 
     setIsLoading(true);
+    setErrorMsg(null);
+
     try {
-      await createTask({
+      if (!isSignedIn) {
+        setErrorMsg("⚠️ Bạn chưa đăng nhập. Vui lòng đăng nhập lại!");
+        setIsLoading(false);
+        return;
+      }
+
+      const token = await getToken({ template: "convex" });
+      if (!token) {
+        setErrorMsg("⚠️ Clerk chưa cấp JWT Token (template 'convex'). Vui lòng đảm bảo bạn đã tạo JWT Template tên 'convex' trên Clerk Dashboard.");
+        setIsLoading(false);
+        return;
+      }
+      
+      const parsedDate = dueDate ? new Date(dueDate).getTime() : Date.now();
+      const finalDueDate = isNaN(parsedDate) ? Date.now() : parsedDate;
+
+      const payload: any = {
         title: title.trim(),
         description: description.trim() || undefined,
         status: "todo",
         priority,
-        dueDate: new Date(dueDate).getTime(),
-        categoryId,
-      });
+        dueDate: finalDueDate,
+      };
+      if (categoryId) {
+        payload.categoryId = categoryId;
+      }
+
+      await createTask(payload);
       onClose();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Lỗi tạo task:", err);
+      const msg = err?.message || String(err);
+      if (msg.includes("UNAUTHORIZED") || msg.includes("JWT") || msg.includes("đăng nhập")) {
+        setErrorMsg("Chưa xác thực với Convex. Bạn nhớ tạo JWT Template tên 'convex' trên Clerk Dashboard nhé!");
+      } else {
+        setErrorMsg(`Lỗi: ${msg}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +133,12 @@ export default function QuickCapture({ categories, onClose }: QuickCaptureProps)
               <X className="w-4 h-4" />
             </button>
           </div>
+
+          {errorMsg && (
+            <div className="p-2.5 text-xs border border-red-500/50 bg-red-500/10 text-red-400 font-mono">
+              ⚠️ {errorMsg}
+            </div>
+          )}
 
           {/* Title Input */}
           <input

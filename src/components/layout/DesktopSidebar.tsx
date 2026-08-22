@@ -92,30 +92,28 @@ export default function DesktopSidebar() {
 
       {/* User Profile Summary */}
       <div className="p-2.5 border-t" style={{ borderColor: "oklch(0.28 0.035 260)" }}>
-        {currentUser && (
-          <div className="flex items-center justify-between gap-2 p-2 border"
-            style={{ background: "oklch(0.16 0.02 260)", borderColor: "oklch(0.28 0.035 260)" }}>
-            <div className="flex items-center gap-2 min-w-0">
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "w-7 h-7 rounded-none",
-                  },
-                }}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold truncate text-emerald-400 leading-tight">
-                  {currentUser.name}
-                </p>
-                <p className="text-[10px] mono-tag flex items-center gap-1 text-amber-400 leading-tight">
-                  <Flame className="w-3 h-3 inline" />
-                  {currentUser.streakCount}d streak
-                </p>
-              </div>
+        <div className="flex items-center justify-between gap-2 p-2 border"
+          style={{ background: "oklch(0.16 0.02 260)", borderColor: "oklch(0.28 0.035 260)" }}>
+          <div className="flex items-center gap-2 min-w-0">
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "w-7 h-7 rounded-none",
+                },
+              }}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold truncate text-emerald-400 leading-tight">
+                {currentUser?.name ?? "Tài Khoản"}
+              </p>
+              <p className="text-[10px] mono-tag flex items-center gap-1 text-amber-400 leading-tight">
+                <Flame className="w-3 h-3 inline" />
+                {currentUser?.streakCount ?? 0}d streak
+              </p>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </aside>
   );

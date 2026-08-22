@@ -1,0 +1,36 @@
+{
+  // Cloudflare Workers / Pages config for Life OS
+  // Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
+  "name": "life-os",
+  "account_id": "a8428c632b999c4776f6dcbd6f89bffc",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-08-01",
+
+  // ✅ Required per assignment spec: nodejs_compat for edge execution
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Assets served from .open-next/assets (static files, _next/static, etc.)
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // KV namespace for caching (optional - can be added later)
+  // "kv_namespaces": [
+  //   { "binding": "NEXT_CACHE_WORKERS_KV", "id": "YOUR_KV_ID" }
+  // ],
+
+  // Environment variables (set production values in Cloudflare Dashboard)
+  // DO NOT put secrets here — use Cloudflare Dashboard > Pages > Settings > Environment Variables
+  "vars": {
+    "NEXT_PUBLIC_APP_URL": "https://life-os.duyta27.workers.dev",
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_ZmFpdGhmdWwtaG9uZXliZWUtNTE3OC5jbGVyay5hY2NvdW50cy5kZXYk",
+    "NEXT_PUBLIC_CONVEX_URL": "https://wonderful-otter-246.convex.cloud",
+    "NEXT_PUBLIC_CONVEX_SITE_URL": "https://wonderful-otter-246.convex.site"
+  },
+
+  // Observability
+  "observability": {
+    "enabled": true
+  }
+}

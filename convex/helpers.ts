@@ -21,17 +21,32 @@ export async function requireAuth(ctx: QueryCtx | MutationCtx) {
 }
 
 /**
+ * Lấy clerkId an toàn từ identity (tránh undefined nếu JWT thiếu claim sub).
+ */
+export function getClerkId(identity: any): string {
+  if (!identity) return "";
+  const sub = identity.subject;
+  if (sub && sub.trim() !== "") return sub;
+  const tokenSub = identity.tokenIdentifier?.split("|").pop();
+  if (tokenSub && tokenSub.trim() !== "") return tokenSub;
+  if (identity.email && identity.email.trim() !== "") return identity.email;
+  return identity.nickname ?? "user_default";
+}
+
+/**
  * Lấy user document từ Convex DB theo clerkId.
  * Trả về null nếu chưa đăng nhập hoặc user chưa tồn tại trong DB.
  */
 export async function getUser(ctx: QueryCtx | MutationCtx) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
+  const clerkId = getClerkId(identity);
+  if (!clerkId) return null;
 
   return await ctx.db
     .query("users")
-    .withIndex("by_clerkId", (q: any) => q.eq("clerkId", identity.subject))
-    .unique();
+    .withIndex("by_clerkId", (q: any) => q.eq("clerkId", clerkId))
+    .first();
 }
 
 /**
@@ -40,11 +55,16 @@ export async function getUser(ctx: QueryCtx | MutationCtx) {
  */
 export async function requireUser(ctx: MutationCtx) {
   const identity = await requireAuth(ctx);
+  const clerkId = getClerkId(identity);
+
+  if (!clerkId) {
+    throw new Error("UNAUTHORIZED: Không tìm thấy Clerk User ID trong JWT identity.");
+  }
 
   let user = await ctx.db
     .query("users")
-    .withIndex("by_clerkId", (q: any) => q.eq("clerkId", identity.subject))
-    .unique();
+    .withIndex("by_clerkId", (q: any) => q.eq("clerkId", clerkId))
+    .first();
 
   if (!user) {
     const adminEmail = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
@@ -55,10 +75,10 @@ export async function requireUser(ctx: MutationCtx) {
     const referralCode = generateReferralCode();
 
     const userId = await ctx.db.insert("users", {
-      clerkId: identity.subject,
+      clerkId,
       email: identity.email ?? "",
       name: identity.name ?? identity.givenName ?? "User",
-      avatarUrl: identity.pictureUrl,
+      avatarUrl: identity.pictureUrl ?? undefined,
       role,
       streakCount: 0,
       lastActiveDate: undefined,
@@ -113,7 +133,11 @@ export function generateReferralCode(): string {
  * Format ngày thành YYYY-MM-DD cho streak tracking.
  */
 export function formatDateKey(date: Date): string {
-  return date.toISOString().split("T")[0];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  return `${year}-${month}-${day}`;
 }
 
 /**

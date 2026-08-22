@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, CalendarDays, Calendar as CalendarIcon } from "lucide-react";
-import { cn, getStartOfDay, getEndOfDay } from "@/lib/utils";
+import { cn, getStartOfDay, getEndOfDay, formatDateKey } from "@/lib/utils";
 import TaskCard from "@/components/tasks/TaskCard";
 
 type ViewMode = "month" | "week" | "day";
@@ -68,7 +68,7 @@ export default function CalendarPage() {
   };
 
   const formatDayKey = (date: Date) =>
-    date.toISOString().split("T")[0];
+    formatDateKey(date);
 
   const isToday = (date: Date) => {
     const today = new Date();

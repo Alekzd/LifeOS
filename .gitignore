@@ -21,8 +21,6 @@ out/
 dist/
 build/
 
-# Convex generated (auto-generated, do not commit)
-convex/_generated/
 
 # IDE
 .vscode/

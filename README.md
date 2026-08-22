@@ -6,21 +6,21 @@
 
 ## 🚀 Live Demo
 
-**Production:** [https://life-os.pages.dev](https://life-os.pages.dev)
+**Production:** IN PROGRESS
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| ⚡ **Quick Task Capture** | Add tasks in 3 seconds via mobile bottom sheet |
-| 📅 **Interactive Calendar** | Day/Week/Month views with color dot indicators |
-| 🔥 **Streak Engine** | Track consecutive productive days (PLG feature) |
-| 🚀 **Viral Referral** | Share achievements + referral links on social media |
-| 🛡️ **RBAC Auth** | Admin vs User separation, server-side enforced |
-| 📊 **Admin Dashboard** | DAU/MAU analytics, feedback management, announcements |
-| ⚡ **Real-time Sync** | Convex WebSocket backend — instant updates across devices |
+| Feature                     | Description                                               |
+| --------------------------- | --------------------------------------------------------- |
+| ⚡ **Quick Task Capture**   | Add tasks in 3 seconds via mobile bottom sheet            |
+| 📅 **Interactive Calendar** | Day/Week/Month views with color dot indicators            |
+| 🔥 **Streak Engine**        | Track consecutive productive days (PLG feature)           |
+| 🚀 **Viral Referral**       | Share achievements + referral links on social media       |
+| 🛡️ **RBAC Auth**            | Admin vs User separation, server-side enforced            |
+| 📊 **Admin Dashboard**      | DAU/MAU analytics, feedback management, announcements     |
+| ⚡ **Real-time Sync**       | Convex WebSocket backend — instant updates across devices |
 
 ---
 
@@ -123,6 +123,7 @@ npm run typecheck   # TypeScript strict check
 ```
 
 **Test Coverage:**
+
 - ✅ Task state transitions (todo → in_progress → completed)
 - ✅ Streak engine (consecutive days, reset, chain calculation)
 - ✅ Admin RBAC guard (user/admin/unauthenticated paths)
@@ -145,7 +146,7 @@ NEXT_PUBLIC_APP_URL = https://life-os.pages.dev
 ### Cloudflare Pages Config
 
 - **Framework preset:** Next.js
-- **Build command:** `npm run build`  
+- **Build command:** `npm run build`
 - **Build output:** `.next`
 - **Node.js compatibility flags:** `nodejs_compat` ✅
 
@@ -162,15 +163,15 @@ NEXT_PUBLIC_APP_URL = https://life-os.pages.dev
 
 ## 📊 Route Overview
 
-| Route | Access | Description |
-|-------|--------|-------------|
-| `/` | Public | Landing page with interactive demo |
-| `/sign-in` | Public | Clerk sign-in |
-| `/sign-up` | Public | Clerk sign-up |
-| `/app` | Authenticated | Task list, streak, quick capture |
-| `/app/calendar` | Authenticated | Interactive calendar |
-| `/app/settings` | Authenticated | Profile + feedback form |
-| `/admin` | Admin only | Analytics, feedbacks, announcements |
+| Route           | Access        | Description                         |
+| --------------- | ------------- | ----------------------------------- |
+| `/`             | Public        | Landing page with interactive demo  |
+| `/sign-in`      | Public        | Clerk sign-in                       |
+| `/sign-up`      | Public        | Clerk sign-up                       |
+| `/app`          | Authenticated | Task list, streak, quick capture    |
+| `/app/calendar` | Authenticated | Interactive calendar                |
+| `/app/settings` | Authenticated | Profile + feedback form             |
+| `/admin`        | Admin only    | Analytics, feedbacks, announcements |
 
 ---
 

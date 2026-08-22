@@ -14,6 +14,15 @@ export function formatDate(date: Date | number): string {
   });
 }
 
+export function formatDateKey(date: Date | number): string {
+  const d = typeof date === "number" ? new Date(date) : date;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  return `${year}-${month}-${day}`;
+}
+
 export function formatTime(date: Date | number): string {
   const d = typeof date === "number" ? new Date(date) : date;
   return d.toLocaleTimeString("vi-VN", {
